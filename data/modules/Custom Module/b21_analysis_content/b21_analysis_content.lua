@@ -1,6 +1,7 @@
 -- b21_analysis_content.lua
 
 size = {400, 300}
+
 components = {
 	-- textureLit	{ position = {0, 0, 512, 512}, image = background }
 }
@@ -17,9 +18,9 @@ local blue = { 0.0, 0.0, 1.0, 1.0 }
 local font = sasl.gl.loadFont("resources/UbuntuMono-Regular.ttf")
 
 local sim_time_s = globalPropertyf("sim/network/misc/network_time_sec")
-local b21_total_energy_m_s = globalPropertyf("b21_soaring/total_energy_m_s")
+local b21_total_energy_mps = globalPropertyf("b21_soaring/total_energy_mps")
 local sim_time_s = globalPropertyf("sim/network/misc/network_time_sec")
-local sim_speed_m_s = globalPropertyf("sim/flightmodel/position/true_airspeed")
+local sim_speed_mps = globalPropertyf("sim/flightmodel/position/true_airspeed")
 local sim_speedbrakes = globalPropertyf("sim/flightmodel2/controls/speedbrake_ratio")
 -- local sim_cl = globalPropertyf("sim/airfoils/afl_cl")
 -- local sim_cd = globalPropertyf("sim/airfoils/afl_cd")
@@ -51,9 +52,9 @@ function draw()
 	-- drawRotatedTextureCenter(needle, angle, 256, 256, 240, 294, 32, 128, 1, 1, 1, 1)
 	-- sasl.gl.drawLine(20, 20, 50, 50, green)
 
-	local speed_m_s = get(sim_speed_m_s)
+	local speed_mps = get(sim_speed_mps)
 
-	local total_energy_m_s = get(b21_total_energy_m_s)
+	local total_energy_mps = get(b21_total_energy_mps)
 
 	local speed_str
 	local sink_str
@@ -62,24 +63,25 @@ function draw()
 
 	if units == "metric"
 	then
-		speed_str = "Speed m/s: "..tostring(math.floor(speed_m_s * 100.0) / 100.0) -- floor/divide to set to 2 decimal places
-		sink_str = "Sink m/s:  "..tostring(math.floor((-total_energy_m_s) * 100.0) / 100.0)
+		speed_str = "Speed m/s: "..tostring(math.floor(speed_mps * 100.0) / 100.0) -- floor/divide to set to 2 decimal places
+		sink_str = "Sink m/s:  "..tostring(math.floor((-total_energy_mps) * 100.0) / 100.0)
 	elseif units == "german"
 	then
-		speed_str = "Speed kph: "..tostring(math.floor(speed_m_s * 3.6 * 100.0) / 100.0)
-		sink_str = "Sink m/s:  "..tostring(math.floor((-total_energy_m_s) * 100.0) / 100.0)
+		speed_str = "Speed kph: "..tostring(math.floor(speed_mps * 3.6 * 100.0) / 100.0)
+		sink_str = "Sink m/s:  "..tostring(math.floor((-total_energy_mps) * 100.0) / 100.0)
 	else -- "uk"
-		speed_str = "Speed kts: "..tostring(math.floor(speed_m_s * 1.94384 * 100.0) / 100.0)
-		sink_str = "Sink kts:  "..tostring(math.floor((-total_energy_m_s) * 1.94384 * 100.0) / 100.0)
+		speed_str = "Speed kts: "..tostring(math.floor(speed_mps * 1.94384 * 100.0) / 100.0)
+		sink_str = "Sink kts:  "..tostring(math.floor((-total_energy_mps) * 1.94384 * 100.0) / 100.0)
 	end
 
 	-- cl_str = "CL: "..tostring(math.floor(get(sim_cl) * 1000.0) / 1000.0)
 	-- cd_str = "CD: "..tostring(math.floor(get(sim_cd) * 1000.0) / 1000.0)
 	-- cm_str = "CM: "..tostring(math.floor(get(sim_cm) * 1000.0) / 1000.0)
 	alpha_str = "Alpha: "..tostring(math.floor(get(sim_alpha) * 10.0) / 10.0) -- (degrees) 1 decimal place
-	if (total_energy_m_s < -0.2)
+
+	if (total_energy_mps < -0.1) -- limit to avoid silly readings and divide by zero error on pause
 	then
-		glide_str = "L/D ratio: "..tostring(math.floor(speed_m_s / (-total_energy_m_s) * 100.0) / 100.0)
+		glide_str = "L/D ratio: "..tostring(math.floor(speed_mps / (-total_energy_mps) * 100.0) / 100.0)
 	else
 		glide_str = "L/D ratio: n/a"
 	end 
