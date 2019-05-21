@@ -1,0 +1,12 @@
+# B21
+# .gitignore for an X-Plane SASL global project
+/64/
+/liblinux/
+/changelog.txt
+/functions.txt
+/Licence
+/version.txt
+/data/init/
+/data/output/
+/data/components/
+poupsPositions.txt
