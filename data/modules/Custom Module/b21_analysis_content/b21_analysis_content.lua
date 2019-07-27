@@ -19,7 +19,6 @@ local font = sasl.gl.loadFont("resources/UbuntuMono-Regular.ttf")
 
 local sim_time_s = globalPropertyf("sim/network/misc/network_time_sec")
 local b21_total_energy_mps = globalPropertyf("b21_soaring/total_energy_mps")
-local sim_time_s = globalPropertyf("sim/network/misc/network_time_sec")
 local sim_speed_mps = globalPropertyf("sim/flightmodel/position/true_airspeed")
 local sim_speedbrakes = globalPropertyf("sim/flightmodel2/controls/speedbrake_ratio")
 -- local sim_cl = globalPropertyf("sim/airfoils/afl_cl")
@@ -27,7 +26,7 @@ local sim_speedbrakes = globalPropertyf("sim/flightmodel2/controls/speedbrake_ra
 -- local sim_cm = globalPropertyf("sim/airfoils/afl_cm")
 local sim_alpha = globalPropertyf("sim/flightmodel/position/alpha")
 
-local units = "uk" -- (knots, knots) vs. "german" (kph, mps), "metric" (mps, mps)
+local units = "german" -- (knots, knots) vs. "german" (kph, mps), "metric" (mps, mps)
 
 -- each mouse click into the window will switch the units
 function onMouseDown(component, x, y, button, parentX, parentY)
