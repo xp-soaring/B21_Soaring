@@ -1,11 +1,11 @@
 -- b21_analysis_content.lua
 
-size = {400, 300}
-
 components = {
 	-- textureLit	{ position = {0, 0, 512, 512}, image = background }
 }
 -- local engn_rpm = globalPropertyf("sim/cockpit2/engine/indicators/engine_speed_rpm[0]", 0)
+
+local fontsize = 30
 
 local background	= loadImage("resources/tacho_background.png")
 local needle		= loadImage("resources/tacho_needle.png")
@@ -89,10 +89,11 @@ function draw()
 	-- sasl.gl.drawText(font,30,380,cl_str,40,false,false,TEXT_ALIGN_LEFT,white)
 	-- sasl.gl.drawText(font,30,330,cd_str,40,false,false,TEXT_ALIGN_LEFT,white)
 	-- sasl.gl.drawText(font,30,280,cm_str,40,false,false,TEXT_ALIGN_LEFT,white)
-	sasl.gl.drawText(font,30,230,alpha_str,40,false,false,TEXT_ALIGN_LEFT,white)
-	sasl.gl.drawText(font,30,180,spoilers_str,40,false,false,TEXT_ALIGN_LEFT,white)
-	sasl.gl.drawText(font,30,130,speed_str,40,false,false,TEXT_ALIGN_LEFT,white)
-	sasl.gl.drawText(font,30,80,sink_str,40,false,false,TEXT_ALIGN_LEFT,white)
-	sasl.gl.drawText(font,30,30,glide_str,40,false,false,TEXT_ALIGN_LEFT,white)
+
+	sasl.gl.drawText(font,30,150,alpha_str,fontsize,false,false,TEXT_ALIGN_LEFT,white)
+	sasl.gl.drawText(font,30,115,spoilers_str,fontsize,false,false,TEXT_ALIGN_LEFT,white)
+	sasl.gl.drawText(font,30,80,speed_str,fontsize,false,false,TEXT_ALIGN_LEFT,white)
+	sasl.gl.drawText(font,30,45,sink_str,fontsize,false,false,TEXT_ALIGN_LEFT,white)
+	sasl.gl.drawText(font,30,10,glide_str,fontsize,false,false,TEXT_ALIGN_LEFT,white)
 	
 end
