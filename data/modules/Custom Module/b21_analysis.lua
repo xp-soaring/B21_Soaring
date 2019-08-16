@@ -3,8 +3,7 @@
 print("b21_analysis.lua startup")
 
 -- -------------------------
--- STARTUP CODE 
-size = { 512, 512 }
+-- STARTUP CODE
 components = {}
 
 local analysis_window -- ContextWindow object for Analysis Window
@@ -39,10 +38,10 @@ analysis_menu_item_id = sasl.appendMenuItem(globals.analysis_menu_id, "Analysis 
 -- Open the "Analysis Window" on-screen
 open_analysis_window = function ()
     print("open_ analysis_window() called on menu click")
-    
+
     analysis_window = contextWindow {
         name = "B21 Soaring Analysis",
-        position = { 50, 200, 300, 300 },
+        position = { 50, 200, 300, 200 },
         visible = true,
         noBackground = false,
         minimumSize = { 100, 100 },
