@@ -1,6 +1,9 @@
 -- b21_chart_content.lua
 
 local POLAR_WET = {{85,0.9},{90,0.71},{95,0.64},{100,0.61},{125,0.7},{150,0.9},{175,1.23},{200,1.7},{225,2.31}}
+local POLAR_DRY = {{75,0.5},{80,0.48},{85,0.47},{90,0.49},{95,0.52},{100,0.55},{105,0.58},{110,0.63},{125,0.8},{150,1.25},{175,1.85}}
+
+local FLAP_LABELS = {"1","2","3","4","5","T","L"}
 
 components = {
 	-- textureLit	{ position = {0, 0, 512, 512}, image = background }
@@ -18,12 +21,19 @@ local black = { 0.0, 0.0, 0.0, 1.0 }
 local font = sasl.gl.loadFont("resources/UbuntuMono-Regular.ttf")
 
 local b21_total_energy_mps = globalPropertyf("b21_soaring/total_energy_mps")
-local sim_time_s = globalPropertyf("sim/network/misc/network_time_sec")
+local DATAREF_TIME_S = globalPropertyf("sim/network/misc/network_time_sec")
 local sim_speed_mps = globalPropertyf("sim/flightmodel/position/true_airspeed")
 local pause = globalPropertyf("sim/time/paused") -- check if sim is paused
+local DATAREF_FLAP_COUNT = globalPropertyi("sim/aircraft/controls/acf_flap_detents")
+local DATAREF_FLAP_RATIO = globalPropertyf("sim/flightmodel2/controls/flap_handle_deploy_ratio")
 
+local FLAP_COUNT = get(DATAREF_FLAP_COUNT)
+print("FLAP_COUNT",FLAP_COUNT)
+
+-- width & height of chart window in pixels
 local w = size[1] -- remember Lua arrays first element is [1]
 local h = size[2]
+
 -- axis coordinates are { { value1, value2 }, {pixel1, pixel2} }
 local SPEED_AXIS = { {60.0, 225.0}, { 40.0, w-20} } -- values in kph, pixels
 local SINK_AXIS = { { 0.0, 4.0 }, { h-100, 10} } -- values in mps, pixels
@@ -40,9 +50,10 @@ local RESET_BUTTON = { 10, h-40, 100, 30, black } -- x,y,w,h
 local CLEAR_BUTTON = { 120, h-40, 100, 30, black } -- x,y,w,h
 
 local chart_line_index = 1
-local chart_lines = {{0}} -- recognizable initial value
+local chart_lines -- initialized with init_chart_lines() to { {0}, {0}, ... {0} }
 
-local polar_line = {}
+local polar_line_wet = {}
+local polar_line_dry = {}
 
 local prev_time_s = 0.0
 
@@ -58,12 +69,20 @@ function in_button(x,y,button)
     return true
 end
 
+function init_chart_lines()
+	chart_lines = {}
+	for i = 1, FLAP_COUNT+1
+	do
+		table.insert(chart_lines,{0})
+	end
+end
+
 -- check mouse down to see if button clicked
 function onMouseDown(component, x, y, button, parentX, parentY)
     if button == MB_LEFT and in_button(x,y,RESET_BUTTON)
     then
         print('reset button clicked')
-        chart_lines = {{0}}
+        init_chart_lines()
         chart_line_index = 1
         return
     end
@@ -93,8 +112,15 @@ for i = 1, #POLAR_WET
 do
 	local x = speed_to_x(POLAR_WET[i][1])
 	local y = sink_to_y(POLAR_WET[i][2])
-	table.insert(polar_line,x)
-	table.insert(polar_line,y)
+	table.insert(polar_line_wet,x)
+	table.insert(polar_line_wet,y)
+end
+for i = 1, #POLAR_DRY
+do
+	local x = speed_to_x(POLAR_DRY[i][1])
+	local y = sink_to_y(POLAR_DRY[i][2])
+	table.insert(polar_line_dry,x)
+	table.insert(polar_line_dry,y)
 end
 
 -- Draw reset button
@@ -157,7 +183,8 @@ end
 
 function draw_polar()
 	sasl.gl.setLinePattern({ 5.0, -2.0 }) -- minor grid line pattern
-	sasl.gl.drawPolyLinePattern(polar_line, green)
+	sasl.gl.drawPolyLinePattern(polar_line_wet, green)
+	sasl.gl.drawPolyLinePattern(polar_line_dry, red)
 end
 
 function draw_axes()
@@ -182,6 +209,9 @@ function draw_graph()
     end
 end
 
+-- STARTUP
+init_chart_lines()
+
 -- on each update we try and append a new point to the polar chart
 function update()
 	local speed_kph = get(sim_speed_mps) * 3.6
@@ -192,7 +222,7 @@ function update()
 		return
 	end
 
-	local time_s = get(sim_time_s)
+	local time_s = get(DATAREF_TIME_S)
 
 	-- do nothing if less than a second since last update
 	if time_s < prev_time_s + 1
@@ -216,6 +246,11 @@ function update()
 		return
 	end
 
+	-- flap setting as index into flap count
+	local flap_setting = math.floor(get(DATAREF_FLAP_RATIO) * FLAP_COUNT + 0.5)
+
+	chart_line_index = flap_setting + 1
+	
 	-- OK speed/sink data looks ok, add to curve
 	-- append point to polar curve
 	local x = speed_to_x(speed_kph)
