@@ -32,7 +32,7 @@ open_chart_window = function ()
 
     chart_window = contextWindow {
         name = "Polar Analysis",
-        position = { 50, 600, 700, 700 },
+        position = { 50, 50, 700, 700 },
         visible = true,
         noBackground = false,
         minimumSize = { 100, 100 },

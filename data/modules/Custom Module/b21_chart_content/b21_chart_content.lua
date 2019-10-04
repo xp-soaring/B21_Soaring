@@ -12,10 +12,29 @@ components = {
 local white = { 1.0, 1.0, 1.0, 1.0 }
 local gray = { 0.5, 0.5, 0.5, 1.0 }
 local red = { 1.0, 0.0, 0.0, 1.0 }
+local darkred = { 0.5, 0.0, 0.0, 1.0 }
+local pink = { 1.0, 0.3, 0.3, 1.0 }
 local green = { 0.0, 1.0, 0.0, 1.0 }
+local darkgreen = {0.0, 0.5, 0.0, 1.0 }
+local lightgreen = { 0.3, 1.0, 0.3, 1.0 }
 local blue = { 0.0, 0.0, 1.0, 1.0 }
+local darkblue = { 0.0, 0.0, 0.5, 1.0 }
+local lightblue = { 0.3, 0.3, 1.0, 1.0 }
 local yellow = { 1.0, 1.0, 0.0, 1.0 }
+local darkyellow = { 0.5, 0.5, 0.0, 1.0 }
+local magenta = { 1.0, 0.0, 1.0, 1.0 }
+local gb = { 0.0, 1.0, 1.0, 1.0 }
 local black = { 0.0, 0.0, 0.0, 1.0 }
+
+local COLOR_BACKGROUND=white
+local COLOR_AXIS=black
+local COLOR_SCALE=black
+local COLOR_MINOR_GRID=gray
+local COLOR_POLAR_DRY=black
+local COLOR_POLAR_WET=black
+local COLOR_CHART_LINE = { darkgreen, darkred, darkblue, darkyellow, red, cyan, magenta }
+local PATTERN_CHART_LINE = { {7,0},{7,-1},{7,-2},{7,-3},{7,-4},{7,-5},{7,-6} }
+
 
 -- local arial_font = sasl.gl.loadFont("Resources/plugins/B21_Soaring/data/modules/Custom Module/tachometer/arial20.fnt")
 local font = sasl.gl.loadFont("resources/UbuntuMono-Regular.ttf")
@@ -150,13 +169,13 @@ function draw_speed_axis()
 	while speed <= SPEED_AXIS[1][2]
 	do
 		local x = speed_to_x(speed)
-		sasl.gl.drawLine(x, SINK_AXIS[2][1]+5, x, SINK_AXIS[2][2], white )
+		sasl.gl.drawLine(x, SINK_AXIS[2][1]+5, x, SINK_AXIS[2][2], COLOR_AXIS )
 		local speed_str = tostring(math.floor(speed+0.001))
-		sasl.gl.drawText(font,x-5,SINK_AXIS[2][1]+5,speed_str,16,false,false,TEXT_ALIGN_LEFT,white)
+		sasl.gl.drawText(font,x-5,SINK_AXIS[2][1]+5,speed_str,16,false,false,TEXT_ALIGN_LEFT,COLOR_SCALE)
 		for i = 1, SPEED_MINOR_STEPS-1
 		do
 			x = speed_to_x(speed + i * SPEED_MINOR)
-			sasl.gl.drawLinePattern(x, SINK_AXIS[2][1], x, SINK_AXIS[2][2], false, gray )
+			sasl.gl.drawLinePattern(x, SINK_AXIS[2][1], x, SINK_AXIS[2][2], false, COLOR_MINOR_GRID )
 		end
 		speed = speed + SPEED_MAJOR
 	end
@@ -169,13 +188,13 @@ function draw_sink_axis()
 	while sink <= SINK_AXIS[1][2]
 	do
 		local y = sink_to_y(sink)
-		sasl.gl.drawLine(SPEED_AXIS[2][1]-5, y, SPEED_AXIS[2][2], y, white )
+		sasl.gl.drawLine(SPEED_AXIS[2][1]-5, y, SPEED_AXIS[2][2], y, COLOR_AXIS )
 		local sink_str = tostring(math.floor(sink*10.0)/10.0)
-		sasl.gl.drawText(font,5,y-5,sink_str,16,false,false,TEXT_ALIGN_LEFT,white)
+		sasl.gl.drawText(font,5,y-5,sink_str,16,false,false,TEXT_ALIGN_LEFT,COLOR_SCALE)
 		for i = 1, SINK_MINOR_STEPS-1
 		do
 			y = sink_to_y(sink + i * SINK_MINOR)
-			sasl.gl.drawLinePattern(SPEED_AXIS[2][1], y, SPEED_AXIS[2][2], y, false, gray )
+			sasl.gl.drawLinePattern(SPEED_AXIS[2][1], y, SPEED_AXIS[2][2], y, false, COLOR_MINOR_GRID )
 		end
 		sink = sink + SINK_MAJOR
 	end
@@ -183,8 +202,8 @@ end
 
 function draw_polar()
 	sasl.gl.setLinePattern({ 5.0, -2.0 }) -- minor grid line pattern
-	sasl.gl.drawPolyLinePattern(polar_line_wet, green)
-	sasl.gl.drawPolyLinePattern(polar_line_dry, red)
+	sasl.gl.drawPolyLinePattern(polar_line_wet, COLOR_POLAR_WET)
+	sasl.gl.drawPolyLinePattern(polar_line_dry, COLOR_POLAR_DRY)
 end
 
 function draw_axes()
@@ -192,20 +211,21 @@ function draw_axes()
 	draw_sink_axis()
 end
 
-function draw_line(chart_line)
+function draw_line(i)
 	-- do not draw line if chart_line still in init state
-	if chart_line[1] == 0
+	if chart_lines[i][1] == 0
 	then
 		return
 	end
 	-- ok have confirmed chart_line doesn't start with 0, so can draw line
-	sasl.gl.drawPolyLine(chart_line, yellow)
+	sasl.gl.setLinePattern(PATTERN_CHART_LINE[i])
+	sasl.gl.drawPolyLine(chart_lines[i], COLOR_CHART_LINE[i])
 end
 
 function draw_graph()
     for i = 1,#chart_lines
     do
-        draw_line(chart_lines[i])
+        draw_line(i)
     end
 end
 
@@ -282,6 +302,8 @@ function update()
 end
 
 function draw()
+
+	sasl.gl.drawRectangle(0,0,w,h,COLOR_BACKGROUND)
 
 	drawAll(components)
 
